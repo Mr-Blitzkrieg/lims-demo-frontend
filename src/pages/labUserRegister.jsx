@@ -29,11 +29,7 @@ const LabUserRegister = () => {
     
       const handleSubmit = (e) => {
         e.preventDefault();
-        axiosInstance.post(LAB_USER_CREATE_URL,{...formData},{
-            headers: {
-              Authorization: false
-            }
-          })
+        axiosInstance.post(LAB_USER_CREATE_URL,{...formData})
         .then((resp) => {
 
             if(resp.status == 201){

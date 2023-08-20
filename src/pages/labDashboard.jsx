@@ -13,6 +13,12 @@ import { useNavigate } from "react-router-dom";
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import {generateRandomNumber,returnFormattedNumbert} from '../utils'
+import EditModal from "./editModal";
+import BillPreviewModal from "./billPreviewModal";
+import ReportPreviewModal from "./reportPreviewModal";
+import ChangeBillPaymentStatusModal from "./changeBillPaymentStatusModal"
+import Tooltip from '@mui/material/Tooltip';
+import { Link } from "react-router-dom";
 
 
 const LabDashBoard = () => {
@@ -45,7 +51,6 @@ const LabDashBoard = () => {
         ]
     }
     const reducer = (state, action) => {
-        console.log('actions',action)
         switch (action.type) {
           case "SET_PATIENT":
             return { ...state, patientuser: action.payload.patientuser };
@@ -65,6 +70,12 @@ const LabDashBoard = () => {
     const [tests,setTests] = useState([])
     const [allPatients,setAllPatients] = useState([])
     const [isModalOpen,setIsModalOpen] = useState(false)
+    const [isEditModalOpen,setIsEditModalOpen] = useState(false)
+    const [isBillPreviewModalOpen,setIsBillPreviewModalOpen] = useState(false)
+    const [isReportPreviewModalOpen,setIsReportPreviewModalOpen] = useState(false)
+    const [isChangeBillPaymentStatusModalOpen,setIsChangeBillPaymentStatusModalOpen] = useState(false)
+    const [selectedBillID,setSelectedBillId] = useState(null)
+    
     
 
     const fetchAllBills = () => {
@@ -128,15 +139,15 @@ const LabDashBoard = () => {
                     };
                   }
                   else if (name === "test_id") {
-                    console.log(tests,value)
                     const selectedTest = tests.find((test) => test.id === parseInt(value));
-                    const selectedTestPrice = selectedTest ? selectedTest.price : 0;
-                    console.log("price",selectedTestPrice)
+                    const selectedTestPrice = selectedTest ? returnFormattedNumbert(selectedTest.price) : 0;
+                    let quantity = 1
                     return {
                       ...item,
                       [name]: value,
-                      quantity: 1,
-                      price: returnFormattedNumbert(selectedTestPrice)
+                      quantity: quantity,
+                      price: selectedTestPrice,
+                      sub_total: quantity * selectedTestPrice,
                     };
                   }
                   else {
@@ -172,7 +183,8 @@ const LabDashBoard = () => {
         let payload = {
             "patientuser_id": state.patientuser,
             "bill_number": state.bill_number,
-            "bill_items": state.bill_items
+            "bill_items": state.bill_items,
+            "payment_status": state.payment_status
         }
         axiosInstance.post(CREATE_BILL,{...payload})
         .then((resp) => {
@@ -196,10 +208,78 @@ const LabDashBoard = () => {
         setIsModalOpen(false)
         billFormRef.current.reset();
     }
+    const handleEditModalClose = () => {
+      setSelectedBillId(null)
+      setIsEditModalOpen(false)
+      // billFormRef.current.reset();
+    }
+    const handleValueEditClick = (id) => {
+      setSelectedBillId(id)
+      setIsEditModalOpen(true)
+
+    }
+    const handleBillClick = (id) => {
+      setSelectedBillId(id)
+      setIsBillPreviewModalOpen(true)
+
+    }
+    const handleBillPreviewClose = () => {
+      setSelectedBillId(null)
+      setIsBillPreviewModalOpen(false)
+    }
+    const handleReportClick = (id,payment_status) => {
+      if(payment_status==="unpaid"){
+        toast.error("Bill are unpaid can't access Report")
+        return
+      }
+      setSelectedBillId(id)
+      setIsReportPreviewModalOpen(true)
+
+    }
+    const handleReportPreviewClose = () => {
+      setSelectedBillId(null)
+      setIsReportPreviewModalOpen(false)
+      // billFormRef.current.reset();
+    }
+    const handlePaymentStatusClick = (id) => {
+      setSelectedBillId(id)
+      setIsChangeBillPaymentStatusModalOpen(true)
+
+    }
+    const handleChangeBillPaymentStatusModalClose = () => {
+      setSelectedBillId(null)
+      setIsChangeBillPaymentStatusModalOpen(false)
+      // billFormRef.current.reset();
+    }
 
     return (
     <>
-    <Modal
+    <ChangeBillPaymentStatusModal
+        fetchAllBills={fetchAllBills}
+        bill_id={selectedBillID}
+        isChangeBillPaymentStatusModalOpen={isChangeBillPaymentStatusModalOpen}
+        onClose={handleChangeBillPaymentStatusModalClose}
+    ></ChangeBillPaymentStatusModal>
+    <EditModal 
+    fetchAllBills={fetchAllBills}
+    bill_id={selectedBillID}
+    onClose={handleEditModalClose}
+    isEditModalOpen={isEditModalOpen}
+    >
+    </EditModal>
+    <BillPreviewModal
+      bill_id={selectedBillID}
+      isBillPreviewModalOpen={isBillPreviewModalOpen}
+      onClose={handleBillPreviewClose}
+    >
+    </BillPreviewModal>
+    <ReportPreviewModal
+      bill_id={selectedBillID}
+      isReportPreviewModalOpen={isReportPreviewModalOpen}
+      onClose={handleReportPreviewClose}
+    >
+    </ReportPreviewModal>
+    {isModalOpen && <Modal
         open={isModalOpen}
         onClose={() => handleModalClose()}
     >
@@ -347,21 +427,31 @@ const LabDashBoard = () => {
 
         </div>
         <div className="flex items-center justify-center mt-4">
-        <button type="submit" onClick={addNewRow} className="w-2/12 text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800">Bill</button>
+        <button type="submit" className="w-2/12 text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800">Bill</button>
         </div>
         </form>
 
     </div>
           
     </Box>
-    
-    </Modal>
-    
-
+    </Modal>}
     <div className="my-12 w-9/12 mx-auto">
-    <div className="flex items-center justify-end my-2">
+    <div className="flex items-center justify-end my-2 gap-x-3">
+    <Link to={'/add-test'}>
     <button type="button" 
-    class="text-white bg-teal-700 hover:bg-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 mb-2"
+    class="text-white bg-teal-600 hover:bg-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 mb-2"
+    >
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 11.25l1.5 1.5.75-.75V8.758l2.276-.61a3 3 0 10-3.675-3.675l-.61 2.277H12l-.75.75 1.5 1.5M15 11.25l-8.47 8.47c-.34.34-.8.53-1.28.53s-.94.19-1.28.53l-.97.97-.75-.75.97-.97c.34-.34.53-.8.53-1.28s.19-.94.53-1.28L12.75 9M15 11.25L12.75 9" />
+    </svg>
+
+
+
+    Add Test
+    </button>
+    </Link>
+    <button type="button" 
+    class="text-white bg-teal-600 hover:bg-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center mr-2 mb-2"
     onClick={() => setIsModalOpen(true)}>
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -378,6 +468,7 @@ const LabDashBoard = () => {
             <TableCell style={{fontWeight:900}} align="right">Bill To</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Total</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Status</TableCell>
+            <TableCell style={{fontWeight:900}} align="right">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -414,11 +505,40 @@ const LabDashBoard = () => {
                 </div>
                 }
                 </TableCell>
+                <TableCell align="right">
+                <div className="flex justify-end items-center gap-x-2">
+                
+                <Tooltip title="Edit Report">
+                <svg id="val-" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 cursor-pointer" onClick={() => handleValueEditClick(row.id)}>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                </svg>
+                </Tooltip>
+                <Tooltip title="Change Payment Status">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0f766e" className="w-6 h-6 cursor-pointer" onClick={() => handlePaymentStatusClick(row.id)}>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                </svg>
+                </Tooltip>
+                <Tooltip title="Preview Bill">
+                <svg id="receipt" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 cursor-pointer" onClick={() => handleBillClick(row.id)}>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                </svg>
+                </Tooltip>
+                <Tooltip title="Preview Report">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#0f766e" className="w-6 h-6 cursor-pointer" onClick={() => handleReportClick(row.id,row.payment_status)}>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+                </Tooltip>
+
+
+                </div>
+                </TableCell>
             </TableRow>
           ))}
+      
         </TableBody>
       </Table>
     </TableContainer>
+    
     </div>
     </>
     )

@@ -1,7 +1,7 @@
 // api.js
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { redirectTo } from '../utils'
+import { redirectTo,logout } from '../utils'
 
 const baseURL = "http://localhost:8000/api/"
 
@@ -30,14 +30,16 @@ instance.interceptors.request.use(
       return Promise.reject(error);
     }
   );
+let isToastDisplayed = false;
 instance.interceptors.response.use(
     (response) => {
       return response;
     },
     (error) => {
-    console.log("error from axios",error)
-    if (error.response && error.response.status === 401) {
+    if (!isToastDisplayed && error.response && error.response.status === 401) {
         toast.error("Token expired. Redirecting to login...");
+        isToastDisplayed = true;
+        // // logout()
         setTimeout(() => {
             window.location.href = "/";
         }, 1000); 

@@ -9,6 +9,8 @@ import { Toaster } from 'react-hot-toast';
 import PatientUserRegister from './pages/patientUserRegister'
 import Login from './pages/login'
 import LabDashBoard from './pages/labDashboard'
+import PatientDashboard from './pages/patientDashboard'
+import AddTest from './pages/addTest'
 
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
         <Route exact path='/lab-user-registration' element={< LabUserRegister />}></Route>
         <Route exact path='/patient-registration' element={< PatientUserRegister />}></Route>
         <Route exact path='/lab-dashboard' element={<LabDashBoard />}></Route>
+        <Route exact path='/patient-dashboard' element={<PatientDashboard />}></Route>
+        <Route exact path='/add-test' element={<AddTest />}></Route>
       </Routes>
       </Layout>
       <Toaster/>
