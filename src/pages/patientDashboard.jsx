@@ -75,6 +75,7 @@ const PatientDashboard = () => {
           <TableRow>
             <TableCell style={{fontWeight:900}}>Bill Number</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Bill To</TableCell>
+            <TableCell style={{fontWeight:900}} align="right">Payment Status</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Total</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Status</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Actions</TableCell>
@@ -90,6 +91,22 @@ const PatientDashboard = () => {
                 {row.bill_number}
               </TableCell>
               <TableCell align="right">{row.patientuser.name}</TableCell>
+              <TableCell>
+                {row.payment_status == "paid" && 
+                <div className="flex justify-end">
+                <div className="flex justify-center items-center m-1 font-medium py-1 px-2 bg-white rounded-full text-green-700 bg-green-100 border border-green-300 ">
+                <div className="text-xs font-normal leading-none max-w-full flex-initial">Paid</div>
+                </div>
+                </div>
+                }
+                {row.payment_status == "unpaid" && 
+                <div className="flex justify-end">
+                <div className="flex justify-center items-center m-1 font-medium py-1 px-2 bg-white rounded-full text-red-700 bg-red-100 border border-red-300 ">
+                <div className="text-xs font-normal leading-none max-w-full flex-initial">Unpaid</div>
+                </div>
+                </div>
+                }
+              </TableCell>
               <TableCell align="right">{row.total}</TableCell>
               <TableCell>
                 {row.status == "completed" && 

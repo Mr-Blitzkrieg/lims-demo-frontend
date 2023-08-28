@@ -58,6 +58,8 @@ const LabDashBoard = () => {
             return { ...state, bill_items: action.payload };
           case "SET_PAYMENT_STATUS":
             return { ...state, payment_status: action.payload.payment_status};
+          case "REMOVE_BILL_ITEM":
+            return { ...state, bill_items: state.bill_items.filter((_, idx) => idx !== action.payload.index)};
           case "RESET":
             return initialState;
           default:
@@ -228,8 +230,8 @@ const LabDashBoard = () => {
       setIsBillPreviewModalOpen(false)
     }
     const handleReportClick = (id,payment_status) => {
-      if(payment_status==="unpaid"){
-        toast.error("Bill are unpaid can't access Report")
+      if(sessionStorage.getItem('role') === "patient" && payment_status==="unpaid"){
+        toast.error("Bill is unpaid can't access Report")
         return
       }
       setSelectedBillId(id)
@@ -342,7 +344,6 @@ const LabDashBoard = () => {
   </div> 
         {state.bill_items.map((ele,idx) => {return <div className="mt-2 grid grid-cols-5 gap-x-3">
         <div className="mb-4 col-span-2">
-        {/* <p className="mb-2">Test Name</p> */}
         <select id="test_id" name="test_id" onChange={(e) => handleBillTestChanges(e,idx)}
         className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
         <option value={ele.id}>Select a Test</option>
@@ -354,7 +355,6 @@ const LabDashBoard = () => {
         </select>
         </div>
         <div className="mb-4">
-        {/* <p className="mb-2">Quantity</p> */}
         <input
             className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             id="quantity"
@@ -376,7 +376,6 @@ const LabDashBoard = () => {
           />
         </div>
         <div className="mb-4 flex items-center gap-x-1">
-        {/* <p className="mb-2">Sub Total</p> */}
         <input
             readOnly
             className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -389,6 +388,12 @@ const LabDashBoard = () => {
           
 
         </div>
+        {/* <div className="mt-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6 cursor-pointer"
+          onClick={(e) => dispatch({ type: "REMOVE_BILL_ITEM", payload: {"index": idx} })}>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        </div> */}
         </div>})}
         </div>
         <div className="flex mb-4 grid grid-cols-5 gap-x-3">
@@ -414,7 +419,7 @@ const LabDashBoard = () => {
 
         <div className="flex items-center gap-x-2">
             <p className="font-semibold whitespace-nowrap">Payment Status</p>
-            <select id="payment_status" name="payment_status" onChange={(e) => dispatch({ type: "SET_PAYMENT_STATUS", payload: {"payment_status":e.target.value} })}
+            <select value={state.payment_status} id="payment_status" name="payment_status" onChange={(e) => dispatch({ type: "SET_PAYMENT_STATUS", payload: {"payment_status":e.target.value} })}
                 className="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                 {/* <option value="select-gender">Select Gender</option> */}
                 <option value="paid">Paid</option>
@@ -435,7 +440,7 @@ const LabDashBoard = () => {
           
     </Box>
     </Modal>}
-    <div className="my-12 w-9/12 mx-auto">
+    <div className="mt-12 w-9/12 mx-auto">
     <div className="flex items-center justify-end my-2 gap-x-3">
     <Link to={'/add-test'}>
     <button type="button" 
@@ -466,6 +471,7 @@ const LabDashBoard = () => {
           <TableRow>
             <TableCell style={{fontWeight:900}}>Bill Number</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Bill To</TableCell>
+            <TableCell style={{fontWeight:900}} align="right">Payment Status</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Total</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Status</TableCell>
             <TableCell style={{fontWeight:900}} align="right">Actions</TableCell>
@@ -481,6 +487,22 @@ const LabDashBoard = () => {
                 {row.bill_number}
               </TableCell>
               <TableCell align="right">{row.patientuser.name}</TableCell>
+              <TableCell>
+                {row.payment_status == "paid" && 
+                <div className="flex justify-end">
+                <div className="flex justify-center items-center m-1 font-medium py-1 px-2 bg-white rounded-full text-green-700 bg-green-100 border border-green-300 ">
+                <div className="text-xs font-normal leading-none max-w-full flex-initial">Paid</div>
+                </div>
+                </div>
+                }
+                {row.payment_status == "unpaid" && 
+                <div className="flex justify-end">
+                <div className="flex justify-center items-center m-1 font-medium py-1 px-2 bg-white rounded-full text-red-700 bg-red-100 border border-red-300 ">
+                <div className="text-xs font-normal leading-none max-w-full flex-initial">Unpaid</div>
+                </div>
+                </div>
+                }
+              </TableCell>
               <TableCell align="right">{row.total}</TableCell>
               <TableCell>
                 {row.status == "completed" && 

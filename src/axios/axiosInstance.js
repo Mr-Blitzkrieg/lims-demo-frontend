@@ -38,8 +38,10 @@ instance.interceptors.response.use(
     (error) => {
     if (!isToastDisplayed && error.response && error.response.status === 401) {
         toast.error("Token expired. Redirecting to login...");
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('role');
         isToastDisplayed = true;
-        // // logout()
+        
         setTimeout(() => {
             window.location.href = "/";
         }, 1000); 

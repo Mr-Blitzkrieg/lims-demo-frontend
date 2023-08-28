@@ -30,8 +30,12 @@ const Login = () => {
             let role = resp.data.data.role
             sessionStorage.setItem("accessToken", resp.data.data.token);
             sessionStorage.setItem("role", role);
-            if (role == 'lab') {navigate('/lab-dashboard')}
-            else {navigate('/patient-dashboard')};
+            if (role == 'lab') {
+                navigate('/lab-dashboard')
+            }
+            else {
+                navigate('/patient-dashboard')
+            };
             
         })
         .catch((error)=> {

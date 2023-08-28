@@ -1,21 +1,31 @@
-import React,{useEffect} from "react";
+import React,{useEffect,useState} from "react";
 import { Link } from "react-router-dom";
 import {logout} from "../utils"
 
-const NavBar = () => {
-    let navbarElements = [
-        {"name":"Home","url":"/patient-dashboard"},
+const NavBar = ({userRole}) => {
+    // const navbarElements = [
+    //     {"name": "Home", "url": "/lab-dashboard","role":"lab"},
+    //     {"name": "Lab Register", "url": "/lab-user-registration","role":"lab"},
+    //     {"name": "Patient Register", "url": "/patient-registration","role":"lab"},
+    //     {"name": "Home", "url": "/patient-dashboard","role":"patient"}
 
-    ]
-    const userRole = sessionStorage.getItem('role');
-    if (userRole === "lab") {  
-        navbarElements = [
-            {"name":"Home","url":"/lab-dashboard"},
-            {"name":"Lab Register","url":"/lab-user-registration"},
-            {"name":"Patient Register","url":"/patient-registration"}
-    
-        ]
+    // ]
+   
+    const [navbarElements, setNavbarElements] = useState([]);
+
+    useEffect(() => {
+    if (userRole === 'lab') {
+        setNavbarElements([
+            {"name": "Home", "url": "/lab-dashboard"},
+            {"name": "Lab Register", "url": "/lab-user-registration"},
+            {"name": "Patient Register", "url": "/patient-registration"}
+      ]);
+    } else {
+      setNavbarElements([
+        {"name": "Home", "url": "/patient-dashboard"}
+      ]);
     }
+  }, [userRole]);
     return (
 
     <nav class="bg-transparent border-teal-400 border-b ">

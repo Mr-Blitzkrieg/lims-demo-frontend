@@ -6,6 +6,7 @@ import {getBillItemsEndpoint,getDetailedBillEndpoint,getReceiptDownloadEndpoint}
 import toast from 'react-hot-toast';
 import Paper from '@mui/material/Paper';
 import {getFormattedDateDDMMYYYY,downloadPDF} from '../utils'
+import Typography from '@mui/material/Typography';
 
 
 const BillPreviewModal = ({bill_id,onClose, isBillPreviewModalOpen}) => {
@@ -33,16 +34,80 @@ const BillPreviewModal = ({bill_id,onClose, isBillPreviewModalOpen}) => {
         loading: "Downloading",
         error: "Report status is Pending or Partially Completed",
         success: "Downloaded Successfully !"
-      });
-        // downloadPDF(getReceiptDownloadEndpoint(bill_id,'RECEIPT'))
-        // .then(() => {onClose()})
-        // .catch((err) => {toast.error(err)})
+      }).then(() => onClose());
    }
 
 
       
     return <>
-    <Modal
+    <Modal open={isBillPreviewModalOpen} onClose={onClose} style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+        <div style={{
+            backgroundColor: 'white',
+            width: '80%',
+            maxHeight: '80vh', // 80% of viewport height
+            overflowY: 'auto', // Add scroll if content exceeds modal height
+            padding: '20px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            borderRadius: '8px',
+            display: 'flex',
+            justifyContent: 'center',
+          }}>
+        <Paper style={{ width: '210mm', height: '297mm', padding: '20mm' }} elevation={3}>
+        <div class="border-b-2 py-4" style={{borderColor:'black'}}>
+            <h1 class="text-center text-gray-700 text-2xl font-bold">Receipt</h1>
+        </div>
+        <div class="mb-10 mt-4">
+            <p class="text-right font-bold">Date: { bill?.bill?.created_on && getFormattedDateDDMMYYYY(bill?.bill?.created_on) }</p>
+            <p class="text-right font-bold">Bill Number: { bill?.bill?.bill_number }</p>
+        <div class="mt-5">
+            <p class="font-semibold">Bill To</p>
+            <h3 class="text-xl">{ bill?.bill?.patientuser?.name }</h3>
+            <p>{ bill?.bill?.patientuser?.address }, { bill?.bill?.patientuser?.city }</p>
+            <p>{bill?.bill?.patientuser?.state }, { bill?.bill?.patientuser?.country }</p>
+            <p>{ bill?.bill?.patientuser?.pincode }</p>
+        </div>
+        </div>
+        <h3 class="text-xl">Bill Items</h3>
+    <table class="w-full border-collapse my-5">
+        <thead>
+            <tr className="bg-gray-100">
+                <th class="border p-2">Test Name</th>
+                <th class="border p-2">Quantity</th>
+                <th class="border p-2">Price</th>
+                <th class="border p-2">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            {bill && bill?.bill_items?.map((item) => { return <tr>
+                <td class="border p-2">{ item?.test?.name }</td>
+                <td class="border p-2">{ item?.quantity }</td>
+                <td class="border p-2">{ item?.price}</td>
+                <td class="border p-2">{ item?.sub_total}</td>
+            </tr>})}
+           
+            <tr class="">
+                <td colspan="3" class="border p-2 text-right"><strong>Total</strong></td>
+                <td class="border p-2"><strong>{ bill?.bill?.total }</strong></td>
+            </tr>
+        </tbody>
+    </table>
+        
+    </Paper>
+    <div className="self-center gap-x-2 w-3/12 text-center">
+          <button 
+            onClick={() => handlePrintClick()}
+            type="button" 
+            className="text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800">Print</button>
+          </div>
+    </div>
+    
+      </Modal>
+    {/* <Modal
         open={isBillPreviewModalOpen}
         onClose={onClose}
     >
@@ -126,7 +191,7 @@ const BillPreviewModal = ({bill_id,onClose, isBillPreviewModalOpen}) => {
     </Box>
    
     
-    </Modal>
+    </Modal> */}
 
     </>
 }

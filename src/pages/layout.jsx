@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import NavBar from './navbar';
 
 export const Layout = ({ children }) => {
+  const userRole = sessionStorage.getItem('role');
   return (
-    <div className="layout">
-      
-      <NavBar />
+    <div className="layout pb-16">
+      <NavBar userRole={userRole}/>
       <main className="content">{children}</main>
-      <Footer />
+      <Footer/>
     </div>
   );
 };

@@ -162,3 +162,8 @@ button:focus-visible {
   }
 }
 
+.custom-grid-6 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 0.1fr;
+}
+

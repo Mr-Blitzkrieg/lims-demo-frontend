@@ -85,7 +85,7 @@ const ChangeBillPaymentStatusModal = ({fetchAllBills,bill_id,onClose,isChangeBil
         <div className="flex justify-center mt-8">
         <button 
         type="submit" 
-        className="w-2/12 text-white bg-teal-400 hover:bg-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800">Submit</button>
+        className="w-2/12 text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800">Submit</button>
         </div>
         
 

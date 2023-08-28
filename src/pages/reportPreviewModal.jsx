@@ -45,38 +45,81 @@ const ReportPreviewModal = ({bill_id,onClose, isReportPreviewModalOpen}) => {
         loading: "Downloading",
         error: "Report status is Pending or Partially Completed",
         success: "Downloaded Successfully !"
-      });
-        // downloadPDF(getReceiptDownloadEndpoint(bill_id, 'REPORT'))
-        // .then(() => {
-        //     onClose();
-        // })
-        // .catch((error_msg) => {
-        //     toast.error(error_msg)
-        // });
-        
-        // downloadPDF(getReceiptDownloadEndpoint(bill_id,'REPORT'))
-        // onClose()
+      }).then(() => onClose())
    }
 
 
       
     return <>
-    <Modal
+        <Modal open={isReportPreviewModalOpen} onClose={onClose} style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+        <div style={{
+            backgroundColor: 'white',
+            width: '80%',
+            maxHeight: '80vh', // 80% of viewport height
+            overflowY: 'auto', // Add scroll if content exceeds modal height
+            padding: '20px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            borderRadius: '8px',
+            display: 'flex',
+            justifyContent: 'center',
+          }}>
+        <Paper style={{ width: '210mm', height: '297mm', padding: '20mm' }} elevation={3}>
+        <div class="border-b-2 py-4" style={{borderColor:'black'}}>
+            <h1 class="text-center text-gray-700 text-2xl font-bold">Report</h1>
+        </div>
+        <div class="mb-10 mt-4">
+            <p class="text-right font-bold">Date: { bill?.bill?.created_on && getFormattedDateDDMMYYYY(bill?.bill?.created_on) }</p>
+        <div class="mt-5">
+            <p class="font-semibold">Patient Name</p>
+            <h3 class="text-xl">{ bill?.bill?.patientuser?.name }</h3>
+            <p class="font-semibold">Gender</p>
+            <h3 class="text-xl">{ capitalizeFirstLetter(bill?.bill?.patientuser?.gender) }</h3>
+
+        </div>
+    </div>
+
+    <h3 class="text-xl">Tests</h3>
+    <table class="w-full border-collapse my-5">
+        <thead>
+            <tr className="bg-gray-100">
+                <th class="border p-2">Test Name</th>
+                <th class="border p-2">Value</th>
+                <th class="border p-2">Unit</th>
+                <th class="border p-2">Reference Range</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            {bill && bill?.bill_items?.map((item) => { return <tr>
+                <td class="border p-2">{ item?.test?.name }</td>
+                <td class="border p-2">{ item?.value }</td>
+                <td class="border p-2">{ item?.unit}</td>
+                <td class="border p-2">{ item?.reference_range ? item?.reference_range: '-' }</td>
+            </tr>})}
+        </tbody>
+    </table>
+        
+    </Paper>
+    <div className="self-center gap-x-2 w-3/12 text-center">
+          <button 
+            onClick={() => handlePrintClick()}
+            type="button" 
+            className="text-white bg-teal-700 hover:bg-teal-800 focus:outline-none focus:ring-4 focus:ring-teal-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-teal-600 dark:hover:bg-teal-700 dark:focus:ring-teal-800">Print</button>
+          </div>
+    </div>
+    
+      </Modal>
+    {/* <Modal
         open={isReportPreviewModalOpen}
         onClose={onClose}
     >
     <Box
       sx={{
-        // display: 'flex',
-        // flexDirection: 'column',
-        // justifyContent: 'center',
-        // height: '100vh', // Set an appropriate height for the modal
-        // overflow: 'auto', 
-        // '& > :not(style)': {
-        // marginX: 'auto',
-        // marginY: 4,
-        // width: '60%', // Adjust the width as needed
-        // padding: 4,
+
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -104,15 +147,12 @@ const ReportPreviewModal = ({bill_id,onClose, isReportPreviewModalOpen}) => {
     </div>
     <div class="mb-10 mt-4">
         <p class="text-right font-bold">Date: { bill?.bill?.created_on && getFormattedDateDDMMYYYY(bill?.bill?.created_on) }</p>
-        {/* <p class="text-right font-bold">Bill Number: { bill?.bill?.bill_number }</p> */}
         <div class="mt-5">
             <p class="font-semibold">Patient Name</p>
             <h3 class="text-xl">{ bill?.bill?.patientuser?.name }</h3>
             <p class="font-semibold">Gender</p>
             <h3 class="text-xl">{ capitalizeFirstLetter(bill?.bill?.patientuser?.gender) }</h3>
-            {/* <p>{ bill?.bill?.patientuser?.address }, { bill?.bill?.patientuser?.city }</p>
-            <p>{bill?.bill?.patientuser?.state }, { bill?.bill?.patientuser?.country }</p>
-            <p>{ bill?.bill?.patientuser?.pincode }</p> */}
+
         </div>
     </div>
 
@@ -152,7 +192,7 @@ const ReportPreviewModal = ({bill_id,onClose, isReportPreviewModalOpen}) => {
     </Box>
    
     
-    </Modal>
+    </Modal> */}
 
     </>
 }
